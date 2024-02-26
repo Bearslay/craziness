@@ -274,12 +274,8 @@ namespace hex {
                 return std::is_integral<Type>::value ? round(x) : x;
             }
 
-            const int getY_npp(int dimy) {
-                return getJ() * dimy + (getI() < 0 ? -1 : 1) * (getI() % 2 != 0 ? dimy / 2 : 0) + getI() / 2 * dimy;
-            }
-            const int getX_npp(int dimx, int inset) {
-                return getI() * dimx - getI() * inset;
-            }
+            const int getY_npp(int dimy) {return J * dimy + (I < 0 ? -1 : 1) * (I % 2 != 0 ? dimy / 2 : 0) + I / 2 * dimy;}
+            const int getX_npp(int dimx, int inset) {return I * dimx - I * inset;}
 
             /**
              * Get each component arranged in a vector
@@ -563,7 +559,7 @@ namespace hex {
              * @param coord HexCoordinate to add to the current one
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator + (const HexCoord<Type> &coord) {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
+            const HexCoord<Type> operator + (const HexCoord<Type> &coord) {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
             /**
              * Subtract the position of two HexCoords
              * This is essentially vector subtraction
@@ -571,7 +567,7 @@ namespace hex {
              * @param coord HexCoordinate to subtract from the current one
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator - (const HexCoord<Type> &coord) {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
+            const HexCoord<Type> operator - (const HexCoord<Type> &coord) {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
             /**
              * Multiply the position of a HexCoord by a scalar value
              * This is essentially vector multiplication
@@ -579,7 +575,7 @@ namespace hex {
              * @param scalar Scalar value of an arithmetic type matching the HexCoord to multiply the current HexCoord by
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator * (const Type &scalar) {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
+            const HexCoord<Type> operator * (const Type &scalar) {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
 
             /**
              * Get the euclidean distance between two HexCoords
@@ -588,7 +584,7 @@ namespace hex {
              * @param coord HexCoord to find distance between
              * @returns An arithmetic type (from the current HexCoord) with the euclidean distance between the specified coordinates
              */
-            Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {
+            const Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {
                 double distance = sqrt(pow(I - coord.I, 2) + pow(J - coord.J, 2) + pow(K - coord.K, 2));
                 return (std::is_integral<Type>::value) ? round(distance) : distance;
             }
@@ -599,7 +595,7 @@ namespace hex {
              * @param coord HexCoord to find distance between
              * @returns An arithmetic type (from the current HexCoord) with the taxicab distance between the specified coordinates
              */
-            Type taxicabDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {return (fabs(I - coord.I) + fabs(J - coord.J) + fabs(K - coord.K)) / 2;}
+            const Type taxicabDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {return (fabs(I - coord.I) + fabs(J - coord.J) + fabs(K - coord.K)) / 2;}
 
             /**
              * Get the HexCoord located in the direction specified

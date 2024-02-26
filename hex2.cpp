@@ -23,7 +23,6 @@ void printHex(hex::HexCoord<int> coord, bool adjacent) {
         npp::mwin.wstr(npp::mwin.gdimy() / 2 + 1 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), adjacent ? L"ADJT" : L"DIAG");
     }
 }
-// void printHex(hex::HexCoord<int> &coord, bool adjacent) {printHex(hex::HexCoord<int>(coord.getI(), coord.getJ(), coord.getK()), adjacent);}
 
 int main() {
     npp::init();
