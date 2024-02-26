@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include <cassert>
 
 #define HEX_DIR_000 0
 #define HEX_DIR_030 1
@@ -198,7 +197,7 @@ namespace hex {
             /**
              * The j-component of the HexCoord
              * Using flat hexagons, the j-axis goes top-left/bottom-right
-             * The value increases going 'down' or 'right' and decreases going 'up' or 'left'
+             * The value increases going 'down' or 'left' and decreases going 'up' or 'right'
              */
             Type J = 0;
             /**
@@ -266,6 +265,22 @@ namespace hex {
              */
             const Type getK() {return K;}
 
+            const Type getY(Type radius = 1) {
+                double y = sqrt(3) * (I / 2 + J) * radius;
+                return std::is_integral<Type>::value ? (y) : y;
+            }
+            const Type getX(Type radius = 1) {
+                double x = I * (3 / 2) * radius;
+                return std::is_integral<Type>::value ? round(x) : x;
+            }
+
+            const int getY_npp(int dimy) {
+                return getJ() * dimy + (getI() < 0 ? -1 : 1) * (getI() % 2 != 0 ? dimy / 2 : 0) + getI() / 2 * dimy;
+            }
+            const int getX_npp(int dimx, int inset) {
+                return getI() * dimx - getI() * inset;
+            }
+
             /**
              * Get each component arranged in a vector
              * 
@@ -277,7 +292,7 @@ namespace hex {
              * 
              * @returns The HexCoord formatted as a string
              */
-            std::string toString(bool specifyPositive = false) {return "(" + str::toString(I, specifyPositive) + ", " + str::toString(J, specifyPositive) + ", " + str::toString(K, specifyPositive) + ")";}
+            const std::string toString(bool specifyPositive = false) {return "(" + str::toString(I, specifyPositive) + ", " + str::toString(J, specifyPositive) + ", " + str::toString(K, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a string formatted as (i, j, k)
              * This particular overload allows for extra formatting with leading/trailing zeros
@@ -287,7 +302,7 @@ namespace hex {
              * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
              * @returns The HexCoord formatted as a string
              */
-            std::string toString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return "(" + str::toString_Places(I, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(J, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(K, beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
+            const std::string toString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return "(" + str::toString_Places(I, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(J, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(K, beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a string formatted as (i, j, k)
              * This particular overload allows for extra formatting by specifying a length for each component
@@ -296,13 +311,13 @@ namespace hex {
              * @param leading Whether to add the extra zeros to the beginning or end of the string
              * @returns The HexCoord formatted as a string
              */
-            std::string toString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return "(" + str::toString_Length(I, length, leading, specifyPositive) + ", " + str::toString_Length(J, length, leading, specifyPositive) + ", " + str::toString_Length(K, length, leading, specifyPositive) + ")";}
+            const std::string toString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return "(" + str::toString_Length(I, length, leading, specifyPositive) + ", " + str::toString_Length(J, length, leading, specifyPositive) + ", " + str::toString_Length(K, length, leading, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * 
              * @returns The HexCoord formatted as a wide string
              */
-            std::wstring toWideString(bool specifyPositive = false) {return L"(" + str::toWideString(I, specifyPositive) + L", " + str::toWideString(J, specifyPositive) + L", " + str::toWideString(K, specifyPositive) + L")";}
+            const std::wstring toWideString(bool specifyPositive = false) {return str::toWideString(toString(specifyPositive));}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * This particular overload allows for extra formatting with leading/trailing zeros
@@ -312,7 +327,7 @@ namespace hex {
              * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
              * @returns The HexCoord formatted as a wide string
              */
-            std::wstring toWideString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return L"(" + str::toWideString_Places(I, beforeDecimal, afterDecimal, add, specifyPositive) + L", " + str::toWideString_Places(J, beforeDecimal, afterDecimal, add, specifyPositive) + L", " + str::toWideString_Places(K, beforeDecimal, afterDecimal, add, specifyPositive) + L")";}
+            const std::wstring toWideString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(toString_Places(beforeDecimal, afterDecimal, add, specifyPositive));}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * This particular overload allows for extra formatting by specifying a length for each component
@@ -321,7 +336,7 @@ namespace hex {
              * @param leading Whether to add the extra zeros to the beginning or end of the wide string
              * @returns The HexCoord formatted as a wide string
              */
-            std::wstring toWideString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return L"(" + str::toWideString_Length(I, length, leading, specifyPositive) + L", " + str::toWideString_Length(J, length, leading, specifyPositive) + L", " + str::toWideString_Length(K, length, leading, specifyPositive) + L")";}
+            const std::wstring toWideString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(toString_Length(length, leading, specifyPositive));}
 
             /**
              * Get the HexCoord's position if rotated 180 degrees with respect to the origin
@@ -573,7 +588,10 @@ namespace hex {
              * @param coord HexCoord to find distance between
              * @returns An arithmetic type (from the current HexCoord) with the euclidean distance between the specified coordinates
              */
-            Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {return (std::is_integral<Type>::value) ? round(sqrt(pow(I - coord.I, 2) + pow(J - coord.J, 2) + pow(K - coord.K, 2))) : sqrt(pow(I - coord.I, 2) + pow(J - coord.J, 2) + pow(K - coord.K, 2));}
+            Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {
+                double distance = sqrt(pow(I - coord.I, 2) + pow(J - coord.J, 2) + pow(K - coord.K, 2));
+                return (std::is_integral<Type>::value) ? round(distance) : distance;
+            }
             /**
              * Get the taxicab distance between two HexCoords
              * By default, this function gets the distance from (0, 0, 0)
@@ -585,21 +603,21 @@ namespace hex {
 
             /**
              * Get the HexCoord located in the direction specified
-             * The cardinal directions are considered the six directions that match up with the edges of the hexagon, not the vertices
+             * The adjacent directions are considered the six directions that match up with the edges of the hexagon, not the vertices
              * 
-             * Out of the twelve directions available, the odd ones should be used (30 + direction * 60)
+             * Out of the twelve directions available, the odd ones should be used (direction * 60 + 30)
              * 
              * @param direction The direction to project in
              * @param offset A scalar used to get the location of further coordinates
              * @returns The HexCoord found at the offset in the specified direction
              */
-            HexCoord<Type> getCardinal(unsigned char direction, Type offset = 1) {
-                unsigned char index = abs(direction) % 6 * 2 + 1;
-                return HexCoord<Type>(I + UnitDirections[index][0] * fabs(offset), J + UnitDirections[index][1] * fabs(offset), K + UnitDirections[index][2] * fabs(offset));
+            const HexCoord<Type> getAdjacent(unsigned char direction, Type offset = 1) {
+                direction = abs(direction) % 6 * 2 + 1;
+                return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
             }
             /**
              * Get the HexCoord located in the direction specified
-             * The intermediate directions are considered the six directions that match up with the vertices of the hexagon, not the edges
+             * The diagonal directions are considered the six directions that match up with the vertices of the hexagon, not the edges
              * 
              * Out of the twelve directions available, the even ones should be used (direction * 60)
              * 
@@ -607,9 +625,33 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect due to how diagonals work with hexagons)
              * @returns The HexCoord found at the offset in the specified direction
              */
-            HexCoord<Type> getIntermediate(unsigned char direction, Type offset = 1) {
-                unsigned char index = abs(direction) % 6 * 2;
-                return HexCoord<Type>(I + UnitDirections[index][0] * fabs(offset), J + UnitDirections[index][1] * fabs(offset), K + UnitDirections[index][2] * fabs(offset));
+            const HexCoord<Type> getDiagonal(unsigned char direction, Type offset = 1) {
+                direction = abs(direction) % 6 * 2;
+                return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
+            }
+            /**
+             * Get the HexCoord located in the direction specified
+             * This function combines getAdjacent() and getDiagonal(), so any of the twelve directions work
+             * 
+             * @param direction The direction to project in
+             * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect when direction is even due to how diagonals work with hexagons)
+             * @returns The HexCoord found at the offset in the specified direction
+             */
+            const HexCoord<Type> getNeighbor(unsigned char direction, Type offset = 1) {
+                direction = abs(direction) % 12;
+                return direction % 2 == 0 ? getDiagonal(direction, offset) : getAdjacent(direction, offset);
+            }
+
+            HexCoord<Type> move(unsigned char direction, Type distance = 1) {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
+
+                direction = abs(direction) % 12 * 2;
+                HexCoord<Type> newpos = direction % 2 == 0 ? getDiagonal(direction, distance) : getAdjacent(direction, distance);
+                I = newpos.getI();
+                J = newpos.getJ();
+                K = newpos.getK();
+
+                return output;
             }
     };
 

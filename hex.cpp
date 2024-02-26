@@ -8,8 +8,12 @@ int main() {
     std::cout << "Taxicab:   " << origin.taxicabDistance() << "\nEuclidean: " << origin.euclideanDistance() << "\n\n";
 
     for (unsigned char i = 0; i < 6; i++) {
-        std::cout << str::toString_Length(i * 60, 3, true) << ": " << origin.getIntermediate(i).toString_Length(2, true, true) << "\n";
-        std::cout << str::toString_Length(i * 60 + 30, 3, true) << ": " << origin.getCardinal(i).toString_Length(2, true, true) << "\n";
+        std::cout << str::toString_Length(i * 60, 3, true) << ": " << origin.getDiagonal(i).toString_Length(2, true, true) << "\n";
+        std::cout << str::toString_Length(i * 60 + 30, 3, true) << ": " << origin.getAdjacent(i).toString_Length(2, true, true) << "\n";
+    }
+    origin.move(HEX_DIR_090);
+    for (unsigned char i = 0; i < 12; i++) {
+        std::cout << str::toString_Length(i * 30, 3, true) << ": " << origin.getNeighbor(i).toString_Length(2, true, true) << "\n";
     }
 
     double num = 123.456;
