@@ -607,7 +607,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates
              * @returns The HexCoord found at the offset in the specified direction
              */
-            const HexCoord<Type> getAdjacent(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getAdjacent(unsigned char direction, Type offset = 1) {
                 direction = abs(direction) % 6 * 2 + 1;
                 return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
             }
@@ -621,7 +621,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect due to how diagonals work with hexagons)
              * @returns The HexCoord found at the offset in the specified direction
              */
-            const HexCoord<Type> getDiagonal(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getDiagonal(unsigned char direction, Type offset = 1) {
                 direction = abs(direction) % 6 * 2;
                 return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
             }
@@ -633,7 +633,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect when direction is even due to how diagonals work with hexagons)
              * @returns The HexCoord found at the offset in the specified direction
              */
-            const HexCoord<Type> getNeighbor(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getNeighbor(unsigned char direction, Type offset = 1) {
                 direction = abs(direction) % 12;
                 return direction % 2 == 0 ? getDiagonal(direction, offset) : getAdjacent(direction, offset);
             }

@@ -27,30 +27,15 @@ void printHex(hex::HexCoord<int> coord, bool adjacent) {
 int main() {
     npp::init();
 
-    hex::HexCoord<int> coord = hex::HexCoord<int>(1, -2, 1);
+    hex::HexCoord<int> coord = hex::HexCoord<int>(0, 0, 0);
 
-    printHex(coord, true);
-    npp::mwin.gchar();
-
-    char radius = 3;
-    for (char i = -radius; i <= radius; i++) {
-        for (char j = -radius - i + (i > 0 ? i : 0); j <= radius - (i > 0 ? i : 0); j++) {
+    int radius = 3;
+    for (int i = -radius; i <= radius; i++) {
+        for (int j = std::max(-radius, -i - radius); j <= std::min(radius, -i + radius); j++) {
             printHex(coord + hex::HexCoord<int>(i, j, -i - j), true);
         }
     }
-    npp::mwin.gchar();
-    npp::mwin.reset();
 
-    printHex(coord, true);
-    for (unsigned char i = 0; i < 6; i++) {
-        printHex(coord.getAdjacent(i), true);
-        printHex(coord.getDiagonal(i), false);
-        printHex(coord.getAdjacent(i, 2), true);
-        printHex(coord.getDiagonal(i, 2), false);
-        printHex(coord.getAdjacent(i, 3), true);
-        printHex(coord.getAdjacent(i, 4), true);
-    }
     npp::mwin.gchar();
-
     npp::end();
 }
