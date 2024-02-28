@@ -38,7 +38,7 @@ namespace str {
      * 
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> const std::string toString(Type input, bool specifyPositive = false) {
+    template <typename Type> std::string toString(Type input, bool specifyPositive = false) {
         // std::to_string() only works for arithmetic data types
         static_assert(std::is_arithmetic<Type>::value, "Type must be an arithmetic type");
 
@@ -66,7 +66,7 @@ namespace str {
      * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> const std::string toString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {
+    template <typename Type> std::string toString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {
         std::string output = str::toString(input, specifyPositive);
         unsigned long originalLength = output.length();
 
@@ -105,7 +105,7 @@ namespace str {
      * @param leading Whether to add the extra zeros to the beginning or end of the string
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> const std::string toString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {
+    template <typename Type> std::string toString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {
         std::string output = str::toString(input, specifyPositive);
         bool hasDecimal = output.find('.') != std::string::npos;
 
@@ -136,7 +136,7 @@ namespace str {
      * 
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> const std::wstring toWideString(Type input, bool specifyPositive = false) {return str::toWideString(str::toString(input, specifyPositive));}
+    template <typename Type> std::wstring toWideString(Type input, bool specifyPositive = false) {return str::toWideString(str::toString(input, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting with leading/trailing zeros
@@ -146,7 +146,7 @@ namespace str {
      * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> const std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(str::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
+    template <typename Type> std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(str::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting by specifying a length for each component
@@ -155,7 +155,7 @@ namespace str {
      * @param leading Whether to add the extra zeros to the beginning or end of the wide string
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> const std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(str::toString_Length(input, length, leading, specifyPositive));}
+    template <typename Type> std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(str::toString_Length(input, length, leading, specifyPositive));}
 }
 
 namespace hex {
@@ -247,7 +247,7 @@ namespace hex {
              */
             HexCoord(const HexCoord<Type> &coord) {HexCoord(coord.I, coord.J, coord.K);}
             
-            template <typename IntType> HexCoord<IntType> round(HexCoord<Type> &coord) {
+            template <typename IntType> HexCoord<IntType> toIntHex(HexCoord<Type> &coord) const {
                 if (std::is_integral<Type>::value || std::is_floating_point<IntType>::value) {return coord;}
 
                 IntType i = round(coord.I);
@@ -274,44 +274,44 @@ namespace hex {
              * 
              * @returns The i-component
              */
-            const Type getI() {return I;}
+            Type getI() const {return I;}
             /**
              * Get the Hecoord's j-component
              * 
              * @returns The j-component
              */
-            const Type getJ() {return J;}
+            Type getJ() const {return J;}
             /**
              * Get the Hecoord's k-component
              * 
              * @returns The k-component
              */
-            const Type getK() {return K;}
+            Type getK() const {return K;}
 
-            const Type getY(Type radius = 1) {
+            Type getY(Type radius = 1) const {
                 double y = sqrt(3) * (I / 2 + J) * radius;
                 return std::is_integral<Type>::value ? (y) : y;
             }
-            const Type getX(Type radius = 1) {
+            Type getX(Type radius = 1) const {
                 double x = I * (3 / 2) * radius;
                 return std::is_integral<Type>::value ? round(x) : x;
             }
 
-            const int getY_npp(int dimy) {return J * dimy + (I < 0 ? -1 : 1) * (I % 2 != 0 ? dimy / 2 : 0) + I / 2 * dimy;}
-            const int getX_npp(int dimx, int inset) {return I * dimx - I * inset;}
+            int getY_npp(int dimy) const {return J * dimy + (I < 0 ? -1 : 1) * (I % 2 != 0 ? dimy / 2 : 0) + I / 2 * dimy;}
+            int getX_npp(int dimx, int inset) const {return I * dimx - I * inset;}
 
             /**
              * Get each component arranged in a vector
              * 
              * @returns A vector containing the three components of the HexCoord {i, j, k}
              */
-            const std::vector<Type> toVector() {return {I, J, K};}
+            std::vector<Type> toVector() const {return {I, J, K};}
             /**
              * Get the HexCoord as a string formatted as (i, j, k)
              * 
              * @returns The HexCoord formatted as a string
              */
-            const std::string toString(bool specifyPositive = false) {return "(" + str::toString(I, specifyPositive) + ", " + str::toString(J, specifyPositive) + ", " + str::toString(K, specifyPositive) + ")";}
+            std::string toString(bool specifyPositive = false) const {return "(" + str::toString(I, specifyPositive) + ", " + str::toString(J, specifyPositive) + ", " + str::toString(K, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a string formatted as (i, j, k)
              * This particular overload allows for extra formatting with leading/trailing zeros
@@ -321,7 +321,7 @@ namespace hex {
              * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
              * @returns The HexCoord formatted as a string
              */
-            const std::string toString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return "(" + str::toString_Places(I, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(J, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(K, beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
+            std::string toString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) const {return "(" + str::toString_Places(I, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(J, beforeDecimal, afterDecimal, add, specifyPositive) + ", " + str::toString_Places(K, beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a string formatted as (i, j, k)
              * This particular overload allows for extra formatting by specifying a length for each component
@@ -330,13 +330,13 @@ namespace hex {
              * @param leading Whether to add the extra zeros to the beginning or end of the string
              * @returns The HexCoord formatted as a string
              */
-            const std::string toString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return "(" + str::toString_Length(I, length, leading, specifyPositive) + ", " + str::toString_Length(J, length, leading, specifyPositive) + ", " + str::toString_Length(K, length, leading, specifyPositive) + ")";}
+            std::string toString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) const {return "(" + str::toString_Length(I, length, leading, specifyPositive) + ", " + str::toString_Length(J, length, leading, specifyPositive) + ", " + str::toString_Length(K, length, leading, specifyPositive) + ")";}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * 
              * @returns The HexCoord formatted as a wide string
              */
-            const std::wstring toWideString(bool specifyPositive = false) {return str::toWideString(toString(specifyPositive));}
+            std::wstring toWideString(bool specifyPositive = false) const {return str::toWideString(toString(specifyPositive));}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * This particular overload allows for extra formatting with leading/trailing zeros
@@ -346,7 +346,7 @@ namespace hex {
              * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
              * @returns The HexCoord formatted as a wide string
              */
-            const std::wstring toWideString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(toString_Places(beforeDecimal, afterDecimal, add, specifyPositive));}
+            std::wstring toWideString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) const {return str::toWideString(toString_Places(beforeDecimal, afterDecimal, add, specifyPositive));}
             /**
              * Get the HexCoord as a wide string formatted as (i, j, k)
              * This particular overload allows for extra formatting by specifying a length for each component
@@ -355,14 +355,14 @@ namespace hex {
              * @param leading Whether to add the extra zeros to the beginning or end of the wide string
              * @returns The HexCoord formatted as a wide string
              */
-            const std::wstring toWideString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(toString_Length(length, leading, specifyPositive));}
+            std::wstring toWideString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) const {return str::toWideString(toString_Length(length, leading, specifyPositive));}
 
             /**
              * Get the HexCoord's position if rotated 180 degrees with respect to the origin
              * 
              * @returns The HexCoord's position if rotated 180 degrees with respect to the origin
              */
-            const HexCoord<Type> operator ! () {return HexCoord<Type>(-I, -J, -K);}
+            HexCoord<Type> operator ! () const {return HexCoord<Type>(-I, -J, -K);}
             /**
              * Checks for equality between two HexCoords
              * 
@@ -372,7 +372,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true for equality or false otherwise
              */
-            const bool operator == (const HexCoord<Type> &coord) {
+            bool operator == (const HexCoord<Type> &coord) const {
                 switch (RelationMetric) {
                     default:
                     case HEX_RELATE_COMMON:
@@ -398,7 +398,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true for unequality or false otherwise
              */
-            const bool operator != (const HexCoord<Type> &coord) {return !(this == coord);}
+            bool operator != (const HexCoord<Type> &coord) const {return !(this == coord);}
             /**
              * Checks for whether a HexCoord is less than another HexCoord
              * 
@@ -408,7 +408,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true if the HexCoord is less than the other or false otherwise
              */
-            const bool operator < (const HexCoord<Type> &coord) {
+            bool operator < (const HexCoord<Type> &coord) const {
                 switch (RelationMetric) {
                     default:
                     case HEX_RELATE_COMMON:
@@ -433,7 +433,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true if the HexCoord is less than or equal to the other or false otherwise
              */
-            const bool operator <= (const HexCoord<Type> &coord) {
+            bool operator <= (const HexCoord<Type> &coord) const {
                 switch (RelationMetric) {
                     default:
                     case HEX_RELATE_COMMON:
@@ -458,7 +458,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true if the HexCoord is greater than the other or false otherwise
              */
-            const bool operator > (const HexCoord<Type> &coord) {
+            bool operator > (const HexCoord<Type> &coord) const {
                 switch (RelationMetric) {
                     default:
                     case HEX_RELATE_COMMON:
@@ -483,7 +483,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true if the HexCoord is greater than or equal to the other or false otherwise
              */
-            const bool operator >= (const HexCoord<Type> &coord) {
+            bool operator >= (const HexCoord<Type> &coord) const {
                 switch (RelationMetric) {
                     default:
                     case HEX_RELATE_COMMON:
@@ -531,7 +531,7 @@ namespace hex {
              * 
              * @returns The old metric used (expressed as a number 0-5)
              */
-            const unsigned char getRelationMetric() {return RelationMetric;}
+            unsigned char getRelationMetric() const {return RelationMetric;}
 
             /**
              * Add the position of a HexCoord to the current one
@@ -582,7 +582,7 @@ namespace hex {
              * @param coord HexCoordinate to add to the current one
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator + (const HexCoord<Type> &coord) {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
+            HexCoord<Type> operator + (const HexCoord<Type> &coord) const {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
             /**
              * Subtract the position of two HexCoords
              * This is essentially vector subtraction
@@ -590,7 +590,7 @@ namespace hex {
              * @param coord HexCoordinate to subtract from the current one
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator - (const HexCoord<Type> &coord) {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
+            HexCoord<Type> operator - (const HexCoord<Type> &coord) const {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
             /**
              * Multiply the position of a HexCoord by a scalar value
              * This is essentially vector multiplication
@@ -598,7 +598,7 @@ namespace hex {
              * @param scalar Scalar value of an arithmetic type matching the HexCoord to multiply the current HexCoord by
              * @returns The position of the resulting HexCoord
              */
-            HexCoord<Type> operator * (const Type &scalar) {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
+            HexCoord<Type> operator * (const Type &scalar) const {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
 
             /**
              * Get the euclidean distance between two HexCoords
@@ -607,7 +607,7 @@ namespace hex {
              * @param coord HexCoord to find distance between
              * @returns An arithmetic type (from the current HexCoord) with the euclidean distance between the specified coordinates
              */
-            const Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {
+            Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) const {
                 double distance = sqrt(pow(I - coord.I, 2) + pow(J - coord.J, 2) + pow(K - coord.K, 2));
                 return (std::is_integral<Type>::value) ? round(distance) : distance;
             }
@@ -618,7 +618,7 @@ namespace hex {
              * @param coord HexCoord to find distance between
              * @returns An arithmetic type (from the current HexCoord) with the taxicab distance between the specified coordinates
              */
-            const Type taxicabDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) {return (fabs(I - coord.I) + fabs(J - coord.J) + fabs(K - coord.K)) / 2;}
+            Type taxicabDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) const {return (fabs(I - coord.I) + fabs(J - coord.J) + fabs(K - coord.K)) / 2;}
 
             /**
              * Get the HexCoord located in the direction specified
@@ -630,7 +630,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates
              * @returns The HexCoord found at the offset in the specified direction
              */
-            HexCoord<Type> getAdjacent(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getAdjacent(unsigned char direction, Type offset = 1) const {
                 direction = abs(direction) % 6 * 2 + 1;
                 return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
             }
@@ -644,7 +644,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect due to how diagonals work with hexagons)
              * @returns The HexCoord found at the offset in the specified direction
              */
-            HexCoord<Type> getDiagonal(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getDiagonal(unsigned char direction, Type offset = 1) const {
                 direction = abs(direction) % 6 * 2;
                 return HexCoord<Type>(I + UnitDirections[direction][0] * fabs(offset), J + UnitDirections[direction][1] * fabs(offset), K + UnitDirections[direction][2] * fabs(offset));
             }
@@ -656,7 +656,7 @@ namespace hex {
              * @param offset A scalar used to get the location of further coordinates (will have a somewhat dramatic effect when direction is even due to how diagonals work with hexagons)
              * @returns The HexCoord found at the offset in the specified direction
              */
-            HexCoord<Type> getNeighbor(unsigned char direction, Type offset = 1) {
+            HexCoord<Type> getNeighbor(unsigned char direction, Type offset = 1) const {
                 direction = abs(direction) % 12;
                 return direction % 2 == 0 ? getDiagonal(direction, offset) : getAdjacent(direction, offset);
             }
@@ -711,6 +711,15 @@ namespace hex {
                 Type temp = I;
                 I = J;
                 J = temp;
+
+                return output;
+            }
+            HexCoord<Type> reflect(bool i, bool j, bool k) {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
+
+                if (i) {reflectI();}
+                if (j) {reflectJ();}
+                if (k) {reflectK();}
 
                 return output;
             }

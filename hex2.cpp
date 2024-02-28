@@ -26,36 +26,31 @@ void printHex(hex::HexCoord<int> &coord) {
 int main() {
     npp::init();
 
-    hex::HexCoord<int> origin = hex::HexCoord<int>(0, 0, 0);
-    printHex(origin);
-
     hex::HexCoord<int> a = hex::HexCoord<int>(3, -2, -1);
     printHex(a);
-    a.rotate();
-    printHex(a);
-    a.rotate(-2);
-    printHex(a);
-    a.rotate(3);
-    printHex(a);
-    a.rotate();
-    printHex(a);
-    a.rotate();
-    printHex(a);
-
     npp::mwin.gchar();
+    for (unsigned char i = 0; i < 5; i++) {
+        a.rotate();
+        printHex(a);
+        npp::mwin.gchar();
+    }
 
     hex::HexCoord<int> b = hex::HexCoord<int>(2, -2, 0);
     printHex(b);
     npp::mwin.gchar();
-    b.reflectI();
+    b.reflect(true, false, false);
     printHex(b);
     npp::mwin.gchar();
-    b.reflectI();
-    b.reflectJ();
+    b.reflect(true, false, true);
     printHex(b);
     npp::mwin.gchar();
-    b.reflectJ();
-    b.reflectK();
+    b.reflect(true, false, false);
+    printHex(b);
+    npp::mwin.gchar();
+    b.reflect(false, false, true);
+    printHex(b);
+    npp::mwin.gchar();
+    b.reflect(true, false, false);
     printHex(b);
 
     npp::mwin.gchar();
@@ -68,6 +63,7 @@ int main() {
     for (int i = -radius; i <= radius; i++) {
         for (int j = std::max(-radius, -i - radius); j <= std::min(radius, -i + radius); j++) {
             hex::HexCoord<int> tempHex = coord + hex::HexCoord<int>(i, j, -i - j);
+            //printHex(coord + hex::HexCoord<int>(i, j, -i - j));
             printHex(tempHex);
         }
     }
