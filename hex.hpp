@@ -38,7 +38,7 @@ namespace str {
      * 
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> std::string toString(Type input, bool specifyPositive = false) {
+    template <typename Type> const std::string toString(Type input, bool specifyPositive = false) {
         // std::to_string() only works for arithmetic data types
         static_assert(std::is_arithmetic<Type>::value, "Type must be an arithmetic type");
 
@@ -66,7 +66,7 @@ namespace str {
      * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> std::string toString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {
+    template <typename Type> const std::string toString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {
         std::string output = str::toString(input, specifyPositive);
         unsigned long originalLength = output.length();
 
@@ -105,7 +105,7 @@ namespace str {
      * @param leading Whether to add the extra zeros to the beginning or end of the string
      * @returns The inputted data type formatted as a string
      */
-    template <typename Type> std::string toString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {
+    template <typename Type> const std::string toString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {
         std::string output = str::toString(input, specifyPositive);
         bool hasDecimal = output.find('.') != std::string::npos;
 
@@ -124,7 +124,7 @@ namespace str {
      * 
      * @returns The inputted string as a wide string
      */
-    std::wstring toWideString(std::string input) {
+    const std::wstring toWideString(std::string input) {
         std::wstring output;
         for (unsigned long i = 0; i < input.length(); i++) {
             output += input[i];
@@ -136,7 +136,7 @@ namespace str {
      * 
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString(Type input, bool specifyPositive = false) {return str::toWideString(str::toString(input, specifyPositive));}
+    template <typename Type> const std::wstring toWideString(Type input, bool specifyPositive = false) {return str::toWideString(str::toString(input, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting with leading/trailing zeros
@@ -146,7 +146,7 @@ namespace str {
      * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(str::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
+    template <typename Type> const std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(str::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting by specifying a length for each component
@@ -155,7 +155,7 @@ namespace str {
      * @param leading Whether to add the extra zeros to the beginning or end of the wide string
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(str::toString_Length(input, length, leading, specifyPositive));}
+    template <typename Type> const std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(str::toString_Length(input, length, leading, specifyPositive));}
 }
 
 namespace hex {
@@ -246,6 +246,29 @@ namespace hex {
              * @param coord HexCoord to copy from
              */
             HexCoord(const HexCoord<Type> &coord) {HexCoord(coord.I, coord.J, coord.K);}
+            
+            template <typename IntType> HexCoord<IntType> round(HexCoord<Type> &coord) {
+                if (std::is_integral<Type>::value || std::is_floating_point<IntType>::value) {return coord;}
+
+                IntType i = round(coord.I);
+                IntType j = round(coord.J);
+                IntType k = round(coord.K);
+
+                double iDiff = fabs(i - coord.I);
+                double jDiff = fabs(j - coord.J);
+                double kDiff = fabs(k - coord.K);
+
+                if (iDiff > jDiff && iDiff > kDiff) {
+                    i = -j - k;
+                } else if (jDiff > kDiff) {
+                    j = -i - k;
+                } else {
+                    k = -i - j;
+                }
+
+                return HexCoord<IntType>(i, j, k);
+            }
+
             /**
              * Get the Hecoord's i-component
              * 
@@ -559,7 +582,7 @@ namespace hex {
              * @param coord HexCoordinate to add to the current one
              * @returns The position of the resulting HexCoord
              */
-            const HexCoord<Type> operator + (const HexCoord<Type> &coord) {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
+            HexCoord<Type> operator + (const HexCoord<Type> &coord) {return HexCoord<Type>(I + coord.I, J + coord.J, K + coord.K);}
             /**
              * Subtract the position of two HexCoords
              * This is essentially vector subtraction
@@ -567,7 +590,7 @@ namespace hex {
              * @param coord HexCoordinate to subtract from the current one
              * @returns The position of the resulting HexCoord
              */
-            const HexCoord<Type> operator - (const HexCoord<Type> &coord) {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
+            HexCoord<Type> operator - (const HexCoord<Type> &coord) {return HexCoord<Type>(I - coord.I, J - coord.J, K - coord.K);}
             /**
              * Multiply the position of a HexCoord by a scalar value
              * This is essentially vector multiplication
@@ -575,7 +598,7 @@ namespace hex {
              * @param scalar Scalar value of an arithmetic type matching the HexCoord to multiply the current HexCoord by
              * @returns The position of the resulting HexCoord
              */
-            const HexCoord<Type> operator * (const Type &scalar) {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
+            HexCoord<Type> operator * (const Type &scalar) {return HexCoord<Type>(I * scalar, J * scalar, K * scalar);}
 
             /**
              * Get the euclidean distance between two HexCoords
@@ -649,14 +672,48 @@ namespace hex {
 
                 return output;
             }
-    };
+            HexCoord<Type> rotate(int steps = 1) {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
 
-    template <typename Type> class HexPlane {
-        private:
-            // std::unordered_map<HexCoord, Type> List;
+                if (abs(steps) % 6 == 0) {return output;}
 
-        public:
+                HexCoord<Type> newpos = HexCoord<Type>(I, J, K);
+                for (int i = 0; i < abs(steps); i++) {
+                    newpos = steps > 0 ? HexCoord<Type>(-newpos.getK(), -newpos.getI(), -newpos.getJ()) : HexCoord<Type>(-newpos.getJ(), -newpos.getK(), -newpos.getI());
+                }
+                I = newpos.getI();
+                J = newpos.getJ();
+                K = newpos.getK();
 
+                return output;
+            }
+            HexCoord<Type> reflectI() {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
+
+                Type temp = J;
+                J = K;
+                K = temp;
+
+                return output;
+            }
+            HexCoord<Type> reflectJ() {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
+
+                Type temp = I;
+                I = K;
+                K = temp;
+
+                return output;
+            }
+            HexCoord<Type> reflectK() {
+                HexCoord<Type> output = HexCoord<Type>(I, J, K);
+
+                Type temp = I;
+                I = J;
+                J = temp;
+
+                return output;
+            }
     };
 }
 
