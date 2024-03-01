@@ -37,7 +37,17 @@ int main() {
 
     std::cout << "Maximum Height:           " << kmtcs::maxHeight_Deg(mag, a, y0) << " m\n";
     std::cout << "Time to Reach Max Height: " << kmtcs::peakTime_Deg(mag, a) << " sec\n";
-    std::cout << "Total Airtime:            " << kmtcs::airTime_Deg(mag, a, dy) << " sec\n";
+    std::cout << "Total Airtime:            " << kmtcs::airTime_Deg(mag, a, dy) << " sec\n\n";
+
+    Vector_3D<double> vr = Vector_3D<double>(5, 4, 3);
+    std::cout << vr.rToString_Length(10) << "\n";
+    std::cout << vr.sToString_Length(10) << "\n";
+    Vector_3D<double> vs = Vector_3D<double>(10, 30, 45, true);
+    std::cout << vs.sToString_Length(10) << "\n";
+    std::cout << vs.rToString_Length(10) << "\n\n";
+
+    std::cout << 2124 + roundToPlace(0.24532, 4) << "\n";
+    std::cout << roundToPlace(34) << "\n";
 
     return 0;
 }

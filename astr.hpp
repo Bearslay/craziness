@@ -2,11 +2,19 @@
 #define NEAT_STRINGS
 
 #include <string>
+#include <cmath>
+
+template <typename FloatType> FloatType roundToPlace(FloatType input, int places = 2) {
+    static_assert(std::is_arithmetic<FloatType>::value, "FloatType must be an arithmetic type");
+    const FloatType multiplier = std::pow(10, places);
+    const FloatType wholeNum = std::floor(input);
+    return std::ceil((input - wholeNum) * multiplier) / multiplier + wholeNum;
+}
 
 /**
  * Contain custom toString()-esque and toWideString()-esque functions that mainly feature improved leading/trailing zero formatting
  */
-namespace nstrings {
+namespace astr {
     /**
      * Get an arithmetic data type as a string
      * 
@@ -18,7 +26,7 @@ namespace nstrings {
 
         std::string output = std::to_string(input);
         // Remove any extra decimal places on the end
-        if (std::is_floating_point<decltype(input)>::value) {
+        if (std::is_floating_point<Type>::value) {
             for (unsigned long i = output.length() - 1; i >= 0; i--) {
                 if (output[i] == '.') {
                     output.erase(i, 1);
@@ -41,7 +49,7 @@ namespace nstrings {
      * @returns The inputted data type formatted as a string
      */
     template <typename Type> std::string toString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {
-        std::string output = str::toString(input, specifyPositive);
+        std::string output = astr::toString(input, specifyPositive);
         unsigned long originalLength = output.length();
 
         if (beforeDecimal == 0 && afterDecimal == 0) {return output;}
@@ -80,7 +88,7 @@ namespace nstrings {
      * @returns The inputted data type formatted as a string
      */
     template <typename Type> std::string toString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {
-        std::string output = str::toString(input, specifyPositive);
+        std::string output = astr::toString(input, specifyPositive);
         bool hasDecimal = output.find('.') != std::string::npos;
 
         unsigned long beforeDecimal = 0;
@@ -90,8 +98,8 @@ namespace nstrings {
         }
         unsigned long afterDecimal = hasDecimal ? output.length() - beforeDecimal - 1 : 0;
 
-        if (leading) {return str::toString_Places(input, length - afterDecimal - (hasDecimal ? 1 : 0), 0, false, specifyPositive);}
-        return str::toString_Places(input, 0, length - beforeDecimal - 1, false, specifyPositive);
+        if (leading) {return astr::toString_Places(input, length - afterDecimal - (hasDecimal ? 1 : 0), 0, false, specifyPositive);}
+        return astr::toString_Places(input, 0, length - beforeDecimal - 1, false, specifyPositive);
     }
     /**
      * Get a string as a wide string
@@ -110,7 +118,7 @@ namespace nstrings {
      * 
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString(Type input, bool specifyPositive = false) {return str::toWideString(str::toString(input, specifyPositive));}
+    template <typename Type> std::wstring toWideString(Type input, bool specifyPositive = false) {return astr::toWideString(astr::toString(input, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting with leading/trailing zeros
@@ -120,7 +128,7 @@ namespace nstrings {
      * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return str::toWideString(str::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
+    template <typename Type> std::wstring toWideString_Places(Type input, unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) {return astr::toWideString(astr::toString_Places(input, beforeDecimal, afterDecimal, add, specifyPositive));}
     /**
      * Get an arithmetic data type as a wide string
      * This particular overload allows for extra formatting by specifying a length for each component
@@ -129,7 +137,7 @@ namespace nstrings {
      * @param leading Whether to add the extra zeros to the beginning or end of the wide string
      * @returns The inputted data type formatted as a wide string
      */
-    template <typename Type> std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return str::toWideString(str::toString_Length(input, length, leading, specifyPositive));}
+    template <typename Type> std::wstring toWideString_Length(Type input, unsigned long length, bool leading = true, bool specifyPositive = false) {return astr::toWideString(astr::toString_Length(input, length, leading, specifyPositive));}
 }
 
 #endif /* NEAT_STRINGS */
