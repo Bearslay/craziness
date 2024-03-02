@@ -246,7 +246,7 @@ namespace hex {
              * @param coord HexCoord to compare with
              * @returns true for unequality or false otherwise
              */
-            bool operator != (const HexCoord<Type> &coord) const {return !(this == coord);}
+            bool operator != (const HexCoord<Type> &coord) const {return !(HexCoord<Type>(I, J, K) == coord);}
             /**
              * Checks for whether a HexCoord is less than another HexCoord
              * 
@@ -457,7 +457,7 @@ namespace hex {
              */
             Type euclideanDistance(const HexCoord<Type> &coord = HexCoord<Type>(0, 0, 0)) const {
                 double distance = sqrt(std::pow(I - coord.I, 2) + std::pow(J - coord.J, 2) + std::pow(K - coord.K, 2));
-                return (std::is_integral<Type>::value) ? std::round(distance) : distance;
+                return std::is_integral<Type>::value ? std::round(distance) : distance;
             }
             /**
              * Get the taxicab distance between two HexCoords
@@ -574,4 +574,4 @@ namespace hex {
     };
 }
 
-#endif /* EVERYTHING */
+#endif /* HEX */

@@ -46,6 +46,9 @@ int main() {
     std::cout << vs.sToString_Length(5) << "\n";
     std::cout << vs.rToString_Length(5) << "\n\n";
 
+    Coord_3D<int> c1 = Coord_3D<int>(4, 7, 2);
+    std::cout << c1.toString_Places(2, 2) << "\n\n";
+
     double num = 2124.24532;
     double num1 = -0.0425334;
     long double avagadro = 602000000000000000000000.0;

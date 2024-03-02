@@ -6,6 +6,14 @@
 #include <string>
 #include <utility>
 #include <cmath>
+#include <vector>
+
+#define COORD_RELATE_COMMON 0
+#define COORD_RELATE_XCOORD 1
+#define COORD_RELATE_YCOORD 2
+#define COORD_RELATE_ZCOORD 3
+#define COORD_RELATE_EUCLID 4
+#define COORD_RELATE_TAXICB 5
 
 /**
  * Collection of constants that can be used in various equations (and changed too in some cases)
@@ -16,6 +24,171 @@ struct {
      */
     double g = 9.80665;
 } Constants;
+
+template <typename ArithType> class Coord_3D {
+    private:
+        ArithType X = 0;
+        ArithType Y = 0;
+        ArithType Z = 0;
+        unsigned char RelationMetric = COORD_RELATE_COMMON;
+
+    public:
+        Coord_3D(ArithType x, ArithType y, ArithType z) {
+            static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
+            X = x;
+            Y = y;
+            Z = z;
+        }
+        Coord_3D() {Coord_3D(0, 0, 0);}
+        Coord_3D(const Coord_3D<ArithType> &coord) {Coord_3D(coord.X, coord.Y, coord.Z);}
+
+        ArithType getX() const {return X;}
+        ArithType getY() const {return Y;}
+        ArithType getZ() const {return Z;}
+
+        Coord_3D<ArithType> setX(ArithType x) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            X = x;
+            return output;
+        }
+        Coord_3D<ArithType> setY(ArithType y) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            Y = y;
+            return output;
+        }
+        Coord_3D<ArithType> setZ(ArithType z) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            Z = z;
+            return output;
+        }
+
+        std::vector<ArithType> toVector() const {return {X, Y, Z};}
+        std::string toString(bool specifyPositive = false, short round = 3) const {return "(" + astr::toString(astr::round(X, round), specifyPositive) + ", " + astr::toString(astr::round(Y, round), specifyPositive) + ", " + astr::toString(astr::round(Z, round), specifyPositive) + ")";}
+        std::string toString_Places(unsigned int beforeDecimal, unsigned int afterDecimal = 0, bool add = false, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Places(astr::round(X, round), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Y, round), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Z, round), beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
+        std::string toString_Length(unsigned int length, bool leading = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Length(astr::round(X, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Y, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Z, round), length, leading, specifyPositive) + ")";}
+        std::string toString_Sci(short decimals = 2, short exponentDigits = 1, bool e = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Sci(X, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(Y, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(Z, decimals, exponentDigits, e, specifyPositive) + ")";}
+
+        Coord_3D<ArithType> operator ! () const {return Coord_3D<ArithType>(-X, -Y, -Z);}
+        bool operator == (const Coord_3D<ArithType> &coord) {
+            switch (RelationMetric) {
+                default:
+                case COORD_RELATE_COMMON:
+                    return X == coord.X && Y == coord.Y && Z == coord.Z;
+                case COORD_RELATE_XCOORD:
+                    return X == coord.X;
+                case COORD_RELATE_YCOORD:
+                    return Y == coord.Y;
+                case COORD_RELATE_ZCOORD:
+                    return Z == coord.Z;
+                case COORD_RELATE_EUCLID:
+                    return euclideanDistance() == coord.euclideanDistance();
+                case COORD_RELATE_TAXICB:
+                    return taxicabDistance() == coord.taxicabDistance();
+            }
+        }
+        bool operator != (const Coord_3D<ArithType> &coord) {return !(Coord_3D<ArithType>(X, Y, Z) == coord);}
+        bool operator < (const HexCoord<Type> &coord) const {
+            switch (RelationMetric) {
+                default:
+                case COORD_RELATE_COMMON:
+                case COORD_RELATE_TAXICB:
+                    return taxicabDistance() < coord.taxicabDistance();
+                case COORD_RELATE_XCOORD:
+                    return X < coord.X;
+                case COORD_RELATE_YCOORD:
+                    return Y < coord.Y;
+                case COORD_RELATE_ZCOORD:
+                    return Z < coord.Z;
+                case COORD_RELATE_EUCLID:
+                    return euclideanDistance() < coord.euclideanDistance();
+            }
+        }
+        bool operator <= (const HexCoord<Type> &coord) const {
+            switch (RelationMetric) {
+                default:
+                case COORD_RELATE_COMMON:
+                case COORD_RELATE_TAXICB:
+                    return taxicabDistance() <= coord.taxicabDistance();
+                case COORD_RELATE_XCOORD:
+                    return X <= coord.X;
+                case COORD_RELATE_YCOORD:
+                    return Y <= coord.Y;
+                case COORD_RELATE_ZCOORD:
+                    return Z <= coord.Z;
+                case COORD_RELATE_EUCLID:
+                    return euclideanDistance() <= coord.euclideanDistance();
+            }
+        }
+        bool operator > (const HexCoord<Type> &coord) const {
+            switch (RelationMetric) {
+                default:
+                case COORD_RELATE_TAXICB:
+                case COORD_RELATE_TAXICB:
+                    return taxicabDistance() > coord.taxicabDistance();
+                case COORD_RELATE_XCOORD:
+                    return X > coord.X;
+                case COORD_RELATE_YCOORD:
+                    return Y > coord.Y;
+                case COORD_RELATE_ZCOORD:
+                    return Z > coord.Z;
+                case COORD_RELATE_EUCLID:
+                    return euclideanDistance() > coord.euclideanDistance();
+            }
+        }
+        bool operator >= (const HexCoord<Type> &coord) const {
+            switch (RelationMetric) {
+                default:
+                case COORD_RELATE_COMMON:
+                case COORD_RELATE_TAXICB:
+                    return taxicabDistance() >= coord.taxicabDistance();
+                case COORD_RELATE_XCOORD:
+                    return X >= coord.X;
+                case COORD_RELATE_YCOORD:
+                    return Y >= coord.Y;
+                case COORD_RELATE_ZCOORD:
+                    return Z >= coord.Z;
+                case COORD_RELATE_EUCLID:
+                    return euclideanDistance() >= coord.euclideanDistance();
+            }
+        }
+        unsigned char setRelationMetric(unsigned char metric = COORD_RELATE_COMMON) {
+            unsigned char output = RelationMetric;
+            RelationMetric = (6 + metric % 6) % 6;
+            return output;
+        }
+        unsigned char getRelationMetric() const {return RelationMetric;}
+
+        Coord_3D<ArithType> operator += (const Coord_3D<ArithType> &coord) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            X += coord.X;
+            Y += coord.Y;
+            Z += coord.Z;
+            return output;
+        }
+        Coord_3D<ArithType> operator -= (const Coord_3D<ArithType> &coord) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            X -= coord.X;
+            Y -= coord.Y;
+            Z -= coord.Z;
+            return output;
+        }
+        Coord_3D<ArithType> operator *= (const ArithType &scalar) {
+            Coord_3D<ArithType> output = Coord_3D<ArithType>(X, Y, Z);
+            X *= scalar;
+            Y *= scalar;
+            Z *= scalar;
+            return output;
+        }
+        Coord_3D<ArithType> operator + (const Coord_3D<ArithType> &coord) const {return Coord_3D<ArithType>(X + coord.X, Y + coord.Y, Z + coord.Z);}
+        Coord_3D<ArithType> operator - (const Coord_3D<ArithType> &coord) const {return Coord_3D<ArithType>(X - coord.X, Y - coord.Y, Z - coord.Z);}
+        Coord_3D<ArithType> operator * (const ArithType &scalar) const {return Coord_3D<ArithType>(X * scalar, Y * scalar, Z * scalar);}
+
+        ArithType euclideanDistance(const Coord_3D<ArithType> &coord = Coord_3D<ArithType>(0, 0, 0)) const {
+            double distance = std::sqrt(std::pow(X - coord.X, 2) + std::pow(Y - coord.Y, 2) + std::pow(Z - coord.Z, 2));
+            return std::is_integral<ArithType>::value ? std::round(distance) : distance;
+        }
+        ArithType taxicabDistance(const Coord_3D<ArithType> &coord = Coord_3D<ArithType>(0, 0, 0)) const {return std::fabs(X - coord.X) + std::fabs(Y - coord.Y) + std::fabs(Z - coord.Z);}
+};
 
 /**
  * A vector with three dimensions that contains values for both a cartesian and spherical coordinate system
@@ -28,70 +201,71 @@ template <typename ArithType> class Vector_3D {
         /**
          * The x-component of the vector with respect to the origin (0, 0, 0)
          */
-        ArithType XAxis = 0;
+        ArithType X = 0;
         /**
          * The y-component of the vector with respect to the origin (0, 0, 0)
          */
-        ArithType YAxis = 0;
+        ArithType Y = 0;
         /**
          * The z-component of the vector with respect to the origin (0, 0, 0)
          */
-        ArithType ZAxis = 0;
+        ArithType Z = 0;
         
         /**
          * The magnitude of the vector
          */
-        ArithType Magnitude = 0;
+        ArithType M = 0;
         /**
          * The polar angle (Θ) within a spherical coordinate system stored in radians
          * This context is using the physics convention and would instead be phi using the mathematics conventions
          * 
          * When limited to integral data types, angles get real inaccurate for vectors of increasing magnitudes, so is always a double to account for that
          */
-        double Theta = 0;
+        double T = 0;
         /**
          * The azimuth angle (φ) within a spherical coordinate system stored in radians
          * This context is using the physics convention and would instead be theta using the mathematics conventions
          * 
          * When limited to integral data types, angles get real inaccurate for vectors of increasing magnitudes, so is always a double to account for that
          */
-        double Phi = 0;
+        double P = 0;
 
         /**
          * Calculate the cartesian components of the vector based off of its magnitude and directions
          */
         void calcCartesian() {
             if (std::is_integral<ArithType>::value) {
-                XAxis = std::round(Magnitude * sin(Phi) * cos(Theta));
-                YAxis = std::round(Magnitude * sin(Phi) * sin(Theta));
-                ZAxis = std::round(Magnitude * cos(Phi));
+                X = std::round(M * sin(P) * cos(T));
+                Y = std::round(M * sin(P) * sin(T));
+                Z = std::round(M * cos(P));
                 return;
             }
 
-            XAxis = Magnitude * sin(Phi) * cos(Theta);
-            YAxis = Magnitude * sin(Phi) * sin(Theta);
-            ZAxis = Magnitude * cos(Phi);
+            X = M * sin(P) * cos(T);
+            Y = M * sin(P) * sin(T);
+            Z = M * cos(P);
         }
 
         /**
          * Calculate the magnitude and directions of the vector based off of its cartesian components
          */
         void calcSpherical() {
-            double mag = sqrt(pow(XAxis, 2) + pow(YAxis, 2) + pow(ZAxis, 2));
+            double m = sqrt(pow(X, 2) + pow(Y, 2) + pow(Z, 2));
             
-            if (std::is_integral<ArithType>::value) {Magnitude = round(mag);}
-            else {Magnitude = mag;}
+            if (std::is_integral<ArithType>::value) {M = round(m);}
+            else {M = m;}
 
-            Theta = acos(ZAxis / mag);
-            Phi = acos(XAxis / sqrt(pow(XAxis, 2) + pow(YAxis, 2)));
+            T = acos(Z / m);
+            P = acos(X / sqrt(pow(X, 2) + pow(Y, 2)));
         }
 
     public:
         /**
          * Default Constructor (set all values to zero)
          */
-        Vector_3D() {}
-
+        Vector_3D() {
+            static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
+        }
         /**
          * Parametric Constructor - Input cartesian coordinates
          * 
@@ -99,16 +273,15 @@ template <typename ArithType> class Vector_3D {
          * @param yaxis The y-component of the vector
          * @param zaxis The z-component of the vector
          */
-        Vector_3D(ArithType xaxis, ArithType yaxis, ArithType zaxis) {
+        Vector_3D(ArithType x, ArithType y, ArithType z) {
             static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
 
-            XAxis = xaxis;
-            YAxis = yaxis;
-            ZAxis = zaxis;
+            X = x;
+            Y = y;
+            Z = z;
 
             calcSpherical();
         }
-
         /**
          * Parametric Constructor - Input spherical coordinates
          * 
@@ -119,78 +292,76 @@ template <typename ArithType> class Vector_3D {
         Vector_3D(ArithType magnitude, double theta, double phi, bool degrees) {
             static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
 
-            Magnitude = magnitude;
-            Theta = theta;
-            Phi = phi;
+            M = magnitude;
+            T = theta;
+            P = phi;
 
             if (degrees) {
-                Theta *= M_PI / 180;
-                Phi *= M_PI / 180;
+                T *= M_PI / 180;
+                P *= M_PI / 180;
             }
             calcCartesian();
         }
-
         /**
          * Copy Constructor
          * 
          * @param vector A Vector_3D of a matching data type to be copied from
          */
         Vector_3D(const Vector_3D<ArithType> &vector) {
-            XAxis = vector.getX();
-            YAxis = vector.getY();
-            ZAxis = vector.getZ();
-            Magnitude = vector.getMag();
-            Theta = vector.getTheta();
-            Phi = vector.getPhi();
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+            M = vector.M;
+            T = vector.T;
+            P = vector.P;
         }
 
-        ArithType getX() const {return XAxis;}
-        ArithType getY() const {return YAxis;}
-        ArithType getZ() const {return ZAxis;}
-        ArithType getMag() const {return Magnitude;}
-        double getTheta() const {return Theta;}
-        double getPhi() const {return Phi;}
+        ArithType getX() const {return X;}
+        ArithType getY() const {return Y;}
+        ArithType getZ() const {return Z;}
+        ArithType getMag() const {return M;}
+        double getTheta() const {return T;}
+        double getPhi() const {return P;}
 
         Vector_3D<ArithType> setX(ArithType x) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(XAxis, YAxis, ZAxis);
-            XAxis = x;
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(X, Y, Z);
+            X = x;
             return output;
         }
         Vector_3D<ArithType> setY(ArithType y) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(XAxis, YAxis, ZAxis);
-            YAxis = y;
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(X, Y, Z);
+            Y = y;
             return output;
         }
         Vector_3D<ArithType> setZ(ArithType z) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(XAxis, YAxis, ZAxis);
-            ZAxis = z;
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(X, Y, Z);
+            Z = z;
             return output;
         }
-        Vector_3D<ArithType> setMag(ArithType mag) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(Magnitude, Theta, Phi, false);
-            Magnitude = mag;
+        Vector_3D<ArithType> setMag(ArithType magnitude) {
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(M, T, P, false);
+            M = magnitude;
             return output;
         }
         Vector_3D<ArithType> setTheta(double theta, bool degrees = true) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(Magnitude, Theta, Phi, false);
-            Theta = theta * (degrees ? M_PI / 180 ; 1);
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(M, T, P, false);
+            T = theta * (degrees ? M_PI / 180 : 1);
             return output;
         }
         Vector_3D<ArithType> setPhi(double phi, bool degrees = true) {
-            Vector_3D<ArithType> output = Vector_3D<ArithType>(Magnitude, Theta, Phi, false);
-            Phi = phi * (degrees ? M_PI / 180 ; 1);
+            Vector_3D<ArithType> output = Vector_3D<ArithType>(M, T, P, false);
+            P = phi * (degrees ? M_PI / 180 : 1);
             return output;
         }
 
-        std::string rToString(bool specifyPositive = false, short round = 3) const {return "(" + astr::toString(astr::round(XAxis, round), specifyPositive) + ", " + astr::toString(astr::round(YAxis, round), specifyPositive) + ", " + astr::toString(astr::round(ZAxis, round), specifyPositive) + ")";}
-        std::string sToString(bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString(astr::round(Magnitude), specifyPositive) + ", " + astr::toString(astr::round(Theta * (degrees ? 180 / M_PI : 1)), specifyPositive) + ", " + astr::toString(astr::round(Phi * (degrees ? 180 / M_PI : 1)), specifyPositive) + ")";}
-        std::string rToString_Places(unsigned int beforeDecimal, unsigned int afterDecimal = 0, bool add = false, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Places(astr::round(XAxis, round), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(YAxis, round), specifyPositive) + ", " + astr::toString_Places(astr::round(ZAxis, round), specifyPositive) + ")";}
-        std::string sToString_Places(unsigned int beforeDecimal, unsigned int afterDecimal = 0, bool add = false, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Places(astr::round(Magnitude), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Theta * (degrees ? 180 / M_PI : 1)), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Phi * (degrees ? 180 / M_PI : 1)), beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
-        std::string rToString_Length(unsigned int length, bool leading = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Length(astr::round(XAxis, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(YAxis, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(ZAxis, round), length, leading, specifyPositive) + ")";}
-        std::string sToString_Length(unsigned int length, bool leading = true, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Length(astr::round(Magnitude), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Theta * (degrees ? 180 / M_PI : 1)), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Phi * (degrees ? 180 / M_PI : 1)), length, leading, specifyPositive) + ")";}
-        std::string rToString_Sci(short decimals = 2, short exponentDigits = 1, bool e = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Sci(XAxis, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(YAxis, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(ZAxis, decimals, exponentDigits, e, specifyPositive) + ")";}
-        std::string sToString_Sci(short decimals = 2, short exponentDigits = 1, bool e = true, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Sci(Magnitude, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(astr::round(Theta * (degrees ? 180 / M_PI : 1)), decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(astr::round(Phi * (degrees ? 180 / M_PI : 1)), decimals, exponentDigits, e, specifyPositive) + ")";}
-
+        std::string rToString(bool specifyPositive = false, short round = 3) const {return "(" + astr::toString(astr::round(X, round), specifyPositive) + ", " + astr::toString(astr::round(Y, round), specifyPositive) + ", " + astr::toString(astr::round(Z, round), specifyPositive) + ")";}
+        std::string sToString(bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString(astr::round(M), specifyPositive) + ", " + astr::toString(astr::round(T * (degrees ? 180 / M_PI : 1)), specifyPositive) + ", " + astr::toString(astr::round(P * (degrees ? 180 / M_PI : 1)), specifyPositive) + ")";}
+        std::string rToString_Places(unsigned int beforeDecimal, unsigned int afterDecimal = 0, bool add = false, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Places(astr::round(X, round), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Y, round), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(Z, round), beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
+        std::string sToString_Places(unsigned int beforeDecimal, unsigned int afterDecimal = 0, bool add = false, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Places(astr::round(M), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(T * (degrees ? 180 / M_PI : 1)), beforeDecimal, afterDecimal, add, specifyPositive) + ", " + astr::toString_Places(astr::round(P * (degrees ? 180 / M_PI : 1)), beforeDecimal, afterDecimal, add, specifyPositive) + ")";}
+        std::string rToString_Length(unsigned int length, bool leading = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Length(astr::round(X, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Y, round), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(Z, round), length, leading, specifyPositive) + ")";}
+        std::string sToString_Length(unsigned int length, bool leading = true, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Length(astr::round(M), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(T * (degrees ? 180 / M_PI : 1)), length, leading, specifyPositive) + ", " + astr::toString_Length(astr::round(P * (degrees ? 180 / M_PI : 1)), length, leading, specifyPositive) + ")";}
+        std::string rToString_Sci(short decimals = 2, short exponentDigits = 1, bool e = true, bool specifyPositive = false, short round = 3) const {return "(" + astr::toString_Sci(X, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(Y, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(Z, decimals, exponentDigits, e, specifyPositive) + ")";}
+        std::string sToString_Sci(short decimals = 2, short exponentDigits = 1, bool e = true, bool specifyPositive = false, short round = 3, bool degrees = true) const {return "(" + astr::toString_Sci(M, decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(astr::round(T * (degrees ? 180 / M_PI : 1)), decimals, exponentDigits, e, specifyPositive) + ", " + astr::toString_Sci(astr::round(P * (degrees ? 180 / M_PI : 1)), decimals, exponentDigits, e, specifyPositive) + ")";}
 
 };
 
