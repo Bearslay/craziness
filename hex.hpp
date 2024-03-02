@@ -204,31 +204,6 @@ namespace hex {
              * @returns The HexCoord formatted as a string
              */
             std::string toString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) const {return "(" + astr::toString_Length(I, length, leading, specifyPositive) + ", " + astr::toString_Length(J, length, leading, specifyPositive) + ", " + astr::toString_Length(K, length, leading, specifyPositive) + ")";}
-            /**
-             * Get the HexCoord as a wide string formatted as (i, j, k)
-             * 
-             * @returns The HexCoord formatted as a wide string
-             */
-            std::wstring toWideString(bool specifyPositive = false) const {return astr::toWideString(toString(specifyPositive));}
-            /**
-             * Get the HexCoord as a wide string formatted as (i, j, k)
-             * This particular overload allows for extra formatting with leading/trailing zeros
-             * 
-             * @param beforeDecimal The amount of digits to place before the decimal point
-             * @param afterDecimal The amount of digits to place after the decimal point (even for integral types)
-             * @param add If true, beforeDecimal/afterDecimal switch from amount of digits to amount of leading/trailing zeros (regardless of digits present already)
-             * @returns The HexCoord formatted as a wide string
-             */
-            std::wstring toWideString_Places(unsigned long beforeDecimal, unsigned long afterDecimal = 0, bool add = false, bool specifyPositive = false) const {return astr::toWideString(toString_Places(beforeDecimal, afterDecimal, add, specifyPositive));}
-            /**
-             * Get the HexCoord as a wide string formatted as (i, j, k)
-             * This particular overload allows for extra formatting by specifying a length for each component
-             * 
-             * @param length The desired width of the output wide string
-             * @param leading Whether to add the extra zeros to the beginning or end of the wide string
-             * @returns The HexCoord formatted as a wide string
-             */
-            std::wstring toWideString_Length(unsigned long length, bool leading = true, bool specifyPositive = false) const {return astr::toWideString(toString_Length(length, leading, specifyPositive));}
 
             /**
              * Get the HexCoord's position if rotated 180 degrees with respect to the origin
