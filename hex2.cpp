@@ -17,9 +17,9 @@ void printHex(hex::HexCoord<int> &coord) {
                 npp::mwin.wchar(npp::mwin.gdimy() / 2 - 3 + i + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 6 + coord.getX_npp(12, 2) + j, hexagon[i][j]);
             }
         }
-        npp::mwin.wstr(npp::mwin.gdimy() / 2 - 2 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), nstrings::toWideString_Length(coord.getI(), 4, true, true));
-        npp::mwin.wstr(npp::mwin.gdimy() / 2 - 1 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), nstrings::toWideString_Length(coord.getJ(), 4, true, true));
-        npp::mwin.wstr(npp::mwin.gdimy() / 2 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), nstrings::toWideString_Length(coord.getK(), 4, true, true));
+        npp::mwin.wstr(npp::mwin.gdimy() / 2 - 2 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), astr::toWideString(astr::toString_Length(coord.getI(), 4, true, true)));
+        npp::mwin.wstr(npp::mwin.gdimy() / 2 - 1 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), astr::toWideString(astr::toString_Length(coord.getJ(), 4, true, true)));
+        npp::mwin.wstr(npp::mwin.gdimy() / 2 + coord.getY_npp(6), npp::mwin.gdimx() / 2 - 2 + coord.getX_npp(12, 2), astr::toWideString(astr::toString_Length(coord.getK(), 4, true, true)));
     }
 }
 

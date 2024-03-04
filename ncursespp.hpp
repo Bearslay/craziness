@@ -104,16 +104,16 @@
 #define LIGHT_HARD 0
 /// @brief Light box drawing characters with rounded corners
 #define LIGHT_SOFT 1
-/// @brief Heavy box drawing characters in both the horiztonal and vertical directions
+/// @brief Heavy box drawing characters in both the horizontal and vertical directions
 #define HEAVY_BOTH 2
-/// @brief Heavy box drawing characters in the horiztonal direction, light in the vertical directions
+/// @brief Heavy box drawing characters in the horizontal direction, light in the vertical directions
 #define HEAVY_HORIZONTAL 3
 /// @brief Heavy box drawing characters in the vertical direction, light in the horizontal directions
 #define HEAVY_VERTICAL 4
 /// @brief Doubled box drawing characters in both the horizontal and vertical directions
 #define DOUBLED_BOTH 5
-/// @brief Doubled box drawing characters in the horiztonal direction, light in the vertical directions
-#define DOUBLED_HORIZTONAL 6
+/// @brief Doubled box drawing characters in the horizontal direction, light in the vertical directions
+#define DOUBLED_HORIZONTAL 6
 /// @brief Doubled box drawing characters in the vertical direction, light in the horizontal directions
 #define DOUBLED_VERTICAL 7
 
@@ -659,7 +659,7 @@ namespace npp {
                         }
                         // Vertical and horizontal lines for the doubled styles (they don't have dashed variants so are on their own)
                         else if (i < 26) {
-                            if (style.first == DOUBLED_HORIZTONAL) {return Keys.LineDrawing[i == 24 ? i : style.second].first;}
+                            if (style.first == DOUBLED_HORIZONTAL) {return Keys.LineDrawing[i == 24 ? i : style.second].first;}
                             else if (style.first == DOUBLED_VERTICAL) {return Keys.LineDrawing[i == 24 ? 12 + style.second : i].first;}
 
                             return Keys.LineDrawing[i].first;
@@ -1686,7 +1686,7 @@ namespace npp {
                     case DOUBLED_BOTH:
                         cstyle = STYLE_DOUBLED;
                         break;
-                    case DOUBLED_HORIZTONAL:
+                    case DOUBLED_HORIZONTAL:
                         cstyle = vertical ? STYLE_LIGHT : STYLE_DOUBLED;
                         break;
                     case DOUBLED_VERTICAL:

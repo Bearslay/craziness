@@ -33,14 +33,20 @@ template <typename ArithType> class Coord_3D {
         unsigned char RelationMetric = COORD_RELATE_COMMON;
 
     public:
+        Coord_3D() {
+            static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
+        }
         Coord_3D(ArithType x, ArithType y, ArithType z) {
             static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
             X = x;
             Y = y;
             Z = z;
         }
-        Coord_3D() {Coord_3D(0, 0, 0);}
-        Coord_3D(const Coord_3D<ArithType> &coord) {Coord_3D(coord.X, coord.Y, coord.Z);}
+        Coord_3D(const Coord_3D<ArithType> &coord) {
+            X = coord.X;
+            Y = coord.Y;
+            Z = coord.Z;
+        }
 
         ArithType getX() const {return X;}
         ArithType getY() const {return Y;}
@@ -87,7 +93,7 @@ template <typename ArithType> class Coord_3D {
             }
         }
         bool operator != (const Coord_3D<ArithType> &coord) {return !(Coord_3D<ArithType>(X, Y, Z) == coord);}
-        bool operator < (const HexCoord<Type> &coord) const {
+        bool operator < (const Coord_3D<ArithType> &coord) const {
             switch (RelationMetric) {
                 default:
                 case COORD_RELATE_COMMON:
@@ -103,7 +109,7 @@ template <typename ArithType> class Coord_3D {
                     return euclideanDistance() < coord.euclideanDistance();
             }
         }
-        bool operator <= (const HexCoord<Type> &coord) const {
+        bool operator <= (const Coord_3D<ArithType> &coord) const {
             switch (RelationMetric) {
                 default:
                 case COORD_RELATE_COMMON:
@@ -119,7 +125,7 @@ template <typename ArithType> class Coord_3D {
                     return euclideanDistance() <= coord.euclideanDistance();
             }
         }
-        bool operator > (const HexCoord<Type> &coord) const {
+        bool operator > (const Coord_3D<ArithType> &coord) const {
             switch (RelationMetric) {
                 default:
                 case COORD_RELATE_TAXICB:
@@ -135,7 +141,7 @@ template <typename ArithType> class Coord_3D {
                     return euclideanDistance() > coord.euclideanDistance();
             }
         }
-        bool operator >= (const HexCoord<Type> &coord) const {
+        bool operator >= (const Coord_3D<ArithType> &coord) const {
             switch (RelationMetric) {
                 default:
                 case COORD_RELATE_COMMON:
@@ -275,11 +281,9 @@ template <typename ArithType> class Vector_3D {
          */
         Vector_3D(ArithType x, ArithType y, ArithType z) {
             static_assert(std::is_arithmetic<ArithType>::value, "ArithType must be an arithmetic type");
-
             X = x;
             Y = y;
             Z = z;
-
             calcSpherical();
         }
         /**
