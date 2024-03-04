@@ -131,20 +131,22 @@ int main() {
         Coord_3D<int>( 10,  10, -10),
         Coord_3D<int>( 10, -10, -10)
     };
-    for (unsigned char i = 0; i < points.size(); i++) {
-        points[i] = rotateCoord_3D(Vector_3D<int>(1, 0, 0, true), points[i], 0);
-    }
-
-    std::vector<Coord_3D<int>> projected = {
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0),
-        Coord_3D<int>(0, 0, 0)
+    std::vector<Coord_3D<int>> incremental = {
+        Coord_3D<int>(-1, -1,  1),
+        Coord_3D<int>(-1,  1,  1),
+        Coord_3D<int>( 1,  1,  1),
+        Coord_3D<int>( 1, -1,  1),
+        Coord_3D<int>(-1, -1, -1),
+        Coord_3D<int>(-1,  1, -1),
+        Coord_3D<int>( 1,  1, -1),
+        Coord_3D<int>( 1, -1, -1)    
     };
+
+    std::vector<Coord_3D<int>> pointsNow, projected;
+    for (unsigned char i = 0; i < points.size(); i++) {
+        pointsNow.emplace_back(points[i]);
+        projected.emplace_back();
+    }
 
     std::vector<double> angles;
     for (unsigned char i = 0; i <= 24; i++) {
@@ -155,16 +157,74 @@ int main() {
     double theta = -45;
     double phi = 90;
 
-    for (int r = 0; r < angles.size(); r++) {
+    npp::mwin.dhline(npp::mwin.gdimy() / 2, 0, npp::mwin.gdimx(), false, {DOUBLED_HORIZONTAL, DASHED_NONE});
+    npp::mwin.dvline(0, npp::mwin.gdimx() / 2, npp::mwin.gdimy());
+    npp::mwin.dvline(0, npp::mwin.gdimx() / 2 + 1, npp::mwin.gdimy());
+    npp::mwin.dbox();
+
+    int ch;
+    char ax, ay, az;
+    bool goodCycle;
+    while (true) {
+        goodCycle = true;
+        npp::mwin.reset();
         npp::mwin.dhline(npp::mwin.gdimy() / 2, 0, npp::mwin.gdimx(), false, {DOUBLED_HORIZONTAL, DASHED_NONE});
         npp::mwin.dvline(0, npp::mwin.gdimx() / 2, npp::mwin.gdimy());
         npp::mwin.dvline(0, npp::mwin.gdimx() / 2 + 1, npp::mwin.gdimy());
         npp::mwin.dbox();
 
-        for (unsigned char i = 0; i < points.size(); i++) {
-            projected[i] = projectCoord<int>(rotateCoord_3D(Vector_3D<int>(1, theta, phi, true), points[i], angles[r]), focalLength);
+        switch (ch) {
+            case 'i':
+                ay = (ay == -23) ? 0 : ay - 1;
+                break;
+            case 'k':
+                ay = (ay == 23) ? 0 : ay + 1;
+                break;
+            case 'j':
+                az = (az == 23) ? 0 : az + 1;
+                break;
+            case 'l':
+                az = (az == -23) ? 0 : az - 1;
+                break;
+            case 'u':
+                ax = (ax == -23) ? 0 : ax - 1;
+                break;
+            case 'o':
+                ax = (ax == -23) ? 0 : ax + 1;
+                break;
+            case 'p':
+                focalLength -= 5;
+                break;
+            case ';':
+                focalLength += 5;
+                break;
+            case 'n':
+                for (unsigned char i = 0; i < points.size(); i++) {
+                    points[i] -= incremental[i];
+                }
+                break;
+            case 'm':
+                for (unsigned char i = 0; i < points.size(); i++) {
+                    points[i] += incremental[i];
+                }
+                break;
         }
-        
+
+        for (unsigned char i = 0; i < points.size(); i++) {
+            pointsNow[i] = rotateCoord_3D(Vector_3D<int>(0, 1, 0), points[i], 15 * ay);
+            pointsNow[i] = rotateCoord_3D(Vector_3D<int>(0, 0, 1), pointsNow[i], 15 * az);
+            pointsNow[i] = rotateCoord_3D(Vector_3D<int>(1, 0, 0), pointsNow[i], 15 * ax);
+        }
+
+        bool revertChange = false;
+        for (unsigned char i = 0; i < points.size(); i++) {
+            
+        }
+
+        for (unsigned char i = 0; i < points.size() i++) {
+            projected[i] = projectCoord<int>(pointsNow[i], focalLength);
+        }
+
         for (unsigned char i = 0; i < pairs.size(); i++) {
             std::vector<Coord_3D<int>> line = extractLine(projected[pairs[i].first], projected[pairs[i].second]);
 
@@ -175,9 +235,8 @@ int main() {
         for (unsigned char i = 0; i < projected.size(); i++) {
             npp::mwin.wstr(npp::mwin.gdimy() / 2 + projected[i].getZ(), npp::mwin.gdimx() / 2 + projected[i].getY() * 2, L"██", 5 + i);
         }
-        npp::mwin.wint(0, 0, angles[r]);
-        if (npp::mwin.gchar() == 'q') {break;}
-        npp::mwin.reset();
+
+        if ((ch = npp::mwin.gchar()) == 'q') {break;}
     }
 
     return npp::end();
