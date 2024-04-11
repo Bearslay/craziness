@@ -221,7 +221,7 @@ int main() {
             
         }
 
-        for (unsigned char i = 0; i < points.size() i++) {
+        for (unsigned char i = 0; i < points.size(); i++) {
             projected[i] = projectCoord<int>(pointsNow[i], focalLength);
         }
 
